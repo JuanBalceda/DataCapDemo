@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Datacap Demo</title>
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <h1>ITLICT DataCap <span class="badge badge-secondary">Demo</span></h1>
+    </div>
+</div>
+<hr/>
+<div class="container">
+    <form>
+        <div class="form-group row">
+            <label class="col-md-2 col-sm-2 col-form-label">Image: </label>
+            <div class="col-md-8 col-sm-10">
+                <input type="file" name="imageFile" class="form-control-file mb-2" id="imagePicker">
+                <img class="img-thumbnail img-fluid mb-2" id="previewImg" src="" height="200"
+                     alt="Image preview..." style="display: none; ">
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <button type="button" class="btn btn-dark" onclick="sendImage()">Send</button>
+            </div>
+        </div>
+
+    </form>
+</div>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/bootstrap.bundle.js"></script>
+<script src="datacap.js"></script>
+</body>
+</html>
