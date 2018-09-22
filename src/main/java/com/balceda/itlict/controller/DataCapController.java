@@ -35,25 +35,26 @@ public class DataCapController {
     @RequestMapping(value = "/loadImage",
             method = RequestMethod.POST,
             headers = ("content-type=multipart/form-data"))
-    public ResponseEntity<byte[]> loadImage(@RequestParam("imageFile") MultipartFile file) {
+    public ResponseEntity loadImage(@RequestParam("imageFile") MultipartFile file) {
 
-        if (file.isEmpty() || file == null) {
-            return new ResponseEntity(new CustomMessage("No valid file"), HttpStatus.CONFLICT);
+        if (file.isEmpty()) {
+            return new ResponseEntity<>(new CustomMessage("No valid file"), HttpStatus.CONFLICT);
         }
 
-        Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
-        String dateName = dateFormat.format(date);
         try {
+            Date date = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss");
+            String dateName = dateFormat.format(date);
+
             String fileName = "itlict_v1_" + dateName + "." + file.getContentType().split("/")[1];
             byte[] bytes = file.getBytes();
             Path path = Paths.get(IMAGES_FOLDER + fileName);
             Files.write(path, bytes);
 
-            return new ResponseEntity(new CustomMessage("Upload complete: " + path), HttpStatus.OK);
+            return new ResponseEntity<>(new CustomMessage("Upload complete: " + path), HttpStatus.OK);
             //return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytes);
-        } catch (IOException e) {
-            return new ResponseEntity(new CustomMessage("Error occurred during upload: " + e.getMessage()), HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new CustomMessage("Error occurred during upload: " + e.getMessage()), HttpStatus.CONFLICT);
         }
     }
 
@@ -62,7 +63,7 @@ public class DataCapController {
             headers = ("content-type=multipart/form-data"))
     public String datacapService(@RequestParam("imageFile") MultipartFile file) {
 
-        if (file.isEmpty() || file == null) {
+        if (file.isEmpty()) {
             return new CustomMessage("No valid file").getMessage();
         }
 
@@ -74,12 +75,14 @@ public class DataCapController {
         logon.setPassword("admin");
 
         HttpHeaders httpHeaders = datacapservice.logon(client, logon);
+        /*
         Iterator iterator = httpHeaders.keySet().iterator();
         while (iterator.hasNext()) {
             String key = iterator.next().toString();
             System.out.println("Key: " + key);
             System.out.println("Value: " + httpHeaders.get(key));
         }
+        */
 
         String tranid = datacapservice.startTran(client, httpHeaders);
         System.out.println("tranid=[" + tranid + "]");
@@ -92,7 +95,7 @@ public class DataCapController {
         try {
             tranrst1 = datacapservice.setFileTran(client, httpHeaders, tranid, "xml", file);
             tranrst2 = datacapservice.setFileTran(client, httpHeaders, tranid, "imageFile", file);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Error setting file...");
         }
         TransactionProps transactionProps = new TransactionProps();
@@ -109,12 +112,12 @@ public class DataCapController {
 
         long ticker2 = System.currentTimeMillis();
 
-        System.out.println("Completed, it took "+(ticker2-ticker1)/1000+" s");
+        System.out.println("Completed, it took " + (ticker2 - ticker1) / 1000 + " s");
         System.out.println(result);
-        String outputhtml="";
-        try{
-            outputhtml = datacapservice.getFileTran(client,tranid);
-        }catch (Exception e){
+        String outputhtml = "";
+        try {
+            outputhtml = datacapservice.getFileTran(client, tranid);
+        } catch (Exception e) {
             System.out.println("Error getting file...");
         }
         /*
@@ -125,5 +128,24 @@ public class DataCapController {
         datacapservice.logout(client, logon, httpHeaders);
 
         return outputhtml;
+    }
+
+
+    @RequestMapping(value = "/test",
+            method = RequestMethod.POST)
+    public String datacapTest() {
+
+        RestTemplate client = new RestTemplate();
+        DatacapLogonInfo logon = new DatacapLogonInfo();
+        logon.setApplication("Transaction");
+        logon.setStation("1");
+        logon.setUser("admin");
+        logon.setPassword("admin");
+
+        HttpHeaders httpHeaders = datacapservice.logon(client, logon);
+
+        datacapservice.logout(client, logon, httpHeaders);
+
+        return new CustomMessage("Test OK").getMessage();
     }
 }
